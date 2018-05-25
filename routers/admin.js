@@ -149,27 +149,47 @@ router.post('/category/edit',function(req,res,next){
             return Promise.reject();
         }else{
             // console.log(category);
-            Category.find().then((categories)=>{
-                console.log(categories)
-            })
-            // 要修改的数据库名称是否已经存在
-            // if(category.name == req.body.name){
-            //     res.render('admin/error',{
-            //         userInfo:req.userInfo,
-            //         message:'分类名称已经存在'
-            //     });
-            //     return Promise.reject();
-            // }else{
-            //     return new Category({
-            //         _id:req.query.id,
-            //         name:req.body.name
-            //     }).save();
-            //     res.render('admin/category_index',{
-            //         userInfo:req.userInfo,
-            //         category:category
-            //     })
-            // }
+            // Category.find().then((categories)=>{
+            //     console.log(categories)
+            // })
+            // 没有修改直接提交
+            if(category.name == name){
+                res.render('admin/error',{
+                    userInfo:req.userInfo,
+                    message:'修改成功',
+                    url:'/admin/category'
+                });
+                return Promise.reject();
+            }else{
+                // 要修改的数据库名称是否已经存在
+                return Category.findOne({
+                    _id:{$ne:id},
+                    name:name
+                })
+                // return new Category({
+                //     _id:req.query.id,
+                //     name:req.body.name
+                // }).save();
+                
+            }
         }
+    }).then((sameCategory)=>{
+        if(sameCategory){
+            res.render('admin/error',{
+                userInfo:req.userInfo,
+                message:'数据库中已经存在同名分类'
+            })
+            return Promise.reject();
+        }else{
+            Category.update({
+                name:req.body.name
+            })
+            // res.render('admin/category_index',{
+            //     userInfo:req.userInfo,
+            //     message:'修改成功'
+            // })
+        }
+        console.log(sameCategory);
     })
 })
 
